@@ -4,10 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 
 import { AppComponent } from './app.component';
+import { CongeFormulaireComponent } from './conge-formulaire/conge-formulaire.component';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    CongeFormulaireComponent
   ],
   imports: [
     BrowserModule,
