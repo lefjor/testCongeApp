@@ -6,24 +6,26 @@
       <div class="col-xs-12 col-sm-4 mb-3">
         <input class="form-control" [class.form-control-success]="user.username != undefined && user.username.length > 0" type="text" placeholder="John" id="firstname" name="firstname" [(ngModel)]="user.username">
       </div>
-      {{user.username}}
+    </div>
+    <div class="form-group row" [class.has-success]="user.lastname != undefined && user.lastname.length > 0">
       <label for="lastname" class="col-xs-12 col-sm-2 col-form-label">Nom</label>
-
       <div class="col-xs-12 col-sm-4">
-        <input class="form-control" type="text" placeholder="Doe" id="lastname">
+        <input class="form-control" type="text" placeholder="Doe" id="lastname" name="lastname" [(ngModel)]="user.lastname">
       </div>
     </div>
-    <div class="form-group row">
+    <div class="form-group row" [class.has-success]="user.matricule != undefined && user.matricule.length === 4">
       <label for="matricule" class="col-xs-12 col-sm-2 col-form-label">Matricule</label>
 
       <div class="col-xs-12 col-sm-4 mb-3">
-        <input class="form-control" type="text" placeholder="xxxx" id="matricule">
+        <input class="form-control" type="text" placeholder="xxxx" id="matricule" name="matricule" [(ngModel)]="user.matricule">
         <small id="passwordHelpInline" class="text-muted">
           0000 pour un nouvel arrivant.
         </small>
       </div>
+    </div>
+    <div class="form-group row">
       <div class="col-xs-12 col-sm-6">
-        <div class="form-check mb-2 mr-sm-2 mb-sm-0">
+        <div class="form-check">
           <label class="form-check-label">
             <input class="form-check-input" type="checkbox"> Temps partiel
           </label>

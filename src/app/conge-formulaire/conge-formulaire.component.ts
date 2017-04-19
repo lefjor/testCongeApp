@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
+import { HttpModule } from '@angular/http';
 
 class User {
   username:string;
-  password:string;
+  lastname:string;
+  matricule:string;
 }
 
 @Component({
@@ -13,7 +15,7 @@ class User {
 export class CongeFormulaireComponent implements OnInit {
   user = new User();
 
-  constructor() {
+  constructor(private http : HttpModule) {
   }
 
   submitConge(firstname) {
