@@ -17,13 +17,14 @@
                [(ngModel)]="user.lastname" required>
       </div>
     </div>
-    <div class="form-group row" [class.has-success]="checkMatricule()" [class.has-danger]="!checkMatricule()">
-      <label for="matricule" class="col-xs-12 col-sm-2 col-form-label">Matricule</label>
+    <div class="alert alert-danger" role="alert" *ngIf="matricule.dirty && matricule.hasError('required')">Le matricule est requis</div>
+    <div class="form-group row" [class.has-success]="matricule.dirty && checkMatricule()" [class.has-danger]="matricule.dirty && !checkMatricule()">
+       <label for="matricule" class="col-xs-12 col-sm-2 col-form-label">Matricule</label>
 
       <div class="col-xs-12 col-sm-10">
-        <input class="form-control" [class.form-control-success]="checkMatricule()" type="text" placeholder="xxxx"
+        <input class="form-control" [class.form-control-success]="matricule.dirty && checkMatricule()" type="text" placeholder="xxxx"
                id="matricule" name="matricule"
-               [(ngModel)]="user.matricule" required>
+               [(ngModel)]="user.matricule" #matricule="ngModel" required>
         <small id="passwordHelpInline" class="text-muted">
           0000 pour un nouvel arrivant.
         </small>
@@ -47,14 +48,14 @@
       <div class="row">
         <label for="begin-date" class="col-sm-2 col-form-label">Date de debut</label>
         <div class="col-sm-4 mb-3">
-          <input class="form-control" type="date" id="begin-date" name="beginDate" [(ngModel)]="conge.beginDate" required>
+          <input class="form-control" type="date" id="begin-date" name="beginDate" (blur)="updateOffDayNumber()" [ngModel]="conge.beginDate | date:'yyyy-MM-dd'" (ngModelChange)="conge.beginDate = $event" [value]="conge.beginDate | date:'yyyy-MM-dd'" required>
         </div>
 
         <div class="col-sm-3">
           <div class="form-check">
             <label class="form-check-label">
               <input class="form-check-input" type="checkbox" name="isBeginDateMorning"
-                     [(ngModel)]="conge.isBeginDateMorning"> Matin
+                     [(ngModel)]="conge.isBeginDateMorning" (change)="updatePartOffDayNumber($event, conge.isBeginDateMorning)"> Matin
             </label>
           </div>
         </div>
@@ -62,7 +63,7 @@
           <div class="form-check">
             <label class="form-check-label">
               <input class="form-check-input" type="checkbox" name="isBeginDateAfternoon"
-                     [(ngModel)]="conge.isBeginDateAfternoon"> Aprem
+                     [(ngModel)]="conge.isBeginDateAfternoon" (change)="updatePartOffDayNumber($event, conge.isBeginDateAfternoon)"> Aprem
             </label>
           </div>
         </div>
@@ -71,7 +72,7 @@
     <div class="form-group row">
       <label for="end-date" class="col-sm-2 col-form-label">Date de fin</label>
       <div class="col-sm-4 mb-3">
-        <input class="form-control" type="date" id="end-date" name="endDate" [(ngModel)]="conge.endDate">
+        <input class="form-control" type="date" id="end-date" name="endDate" (blur)="updateOffDayNumber()" [ngModel]="conge.endDate | date:'yyyy-MM-dd'" (ngModelChange)="conge.endDate = $event" [value]="conge.endDate | date:'yyyy-MM-dd'">
       </div>
       <div class="col-sm-3">
         <div class="form-check">
@@ -118,6 +119,7 @@
                   [(ngModel)]="conge.otherDetails"></textarea>
       </div>
     </div>
+    conge : #{{conge.beginDate}}#
     {{conge | json}}
   </fieldset>
   <div class="form-group col-xs-12">
