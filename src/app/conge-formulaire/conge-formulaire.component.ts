@@ -8,19 +8,19 @@ class User {
   username: string;
   lastname: string;
   matricule: string;
-  isPartialTime: boolean;
+  isPartialTime?: boolean;
 }
 
 class Conge {
-  beginDate: Date;
-  isBeginDateMorning: boolean;
-  isBeginDateAfternoon: boolean;
-  endDate: Date;
-  isEndDateMorning: boolean;
-  isEndDateBegin: boolean;
-  reason: string;
-  offDayNumber: number;
-  otherDetails: string;
+  beginDate:Date;
+  isBeginDateMorning:boolean;
+  isBeginDateAfternoon:boolean;
+  endDate:Date;
+  isEndDateMorning:boolean;
+  isEndDateBegin:boolean;
+  reason:string;
+  offDayNumber:number;
+  otherDetails:string;
 }
 
 @Component({
@@ -33,7 +33,7 @@ export class CongeFormulaireComponent implements OnInit {
   conge = new Conge();
   regexDigit = /\d{4}/g;
 
-  constructor(private http: HttpModule, private localStorageService: LocalStorageService) {
+  constructor(private http:HttpModule, private localStorageService:LocalStorageService) {
   }
 
   updateOffDayNumber() {
@@ -45,34 +45,32 @@ export class CongeFormulaireComponent implements OnInit {
     }
   }
 
-  updatePartOffDayNumber(event : Event, checkbox : boolean) {
+  updatePartOffDayNumber(event:Event, checkbox:boolean) {
     console.log('updatePartOffDayNumber');
     console.log(event);
-    if(checkbox){
+    if (checkbox) {
       this.conge.offDayNumber += 0.5;
-    }else {
+    } else {
       this.conge.offDayNumber -= 0.5;
     }
   }
 
 
-  checkText(text: string): boolean {
+  checkText(text:string):boolean {
     if (text !== undefined && text.length > 0) {
       return true;
     }
     return false;
   }
 
-  checkMatricule(): boolean {
-    if (this.user.matricule !== undefined && this.regexDigit.test(this.user.matricule)) {
-      return true;
-    }
-    return false;
+  checkMatricule():boolean {
+    return this.user.matricule !== undefined && this.regexDigit.test(this.user.matricule);
   }
 
-  submitConge(firstname) {
+  submitConge(conge) {
     // Save to localStorage
     this.localStorageService.set("personalInfo", this.user);
+    console.log(conge);
   }
 
   ngOnInit() {
@@ -84,6 +82,9 @@ export class CongeFormulaireComponent implements OnInit {
     this.conge.isBeginDateAfternoon = true;
     this.conge.isEndDateBegin = true;
     this.conge.isEndDateMorning = true;
+    // Select init
+    this.conge.reason = "CP";
+
     this.updateOffDayNumber();
     if (this.localStorageService.isSupported) {
       console.log('LocalStorage : Loading data');

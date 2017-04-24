@@ -1,33 +1,48 @@
-<form (ngSubmit)="submitConge()">
+<form (ngSubmit)="submitConge(congeForm.value)" #congeForm="ngForm">
   <fieldset>
     <legend>Informations personnelles</legend>
     <div class="form-group row" [class.has-success]="checkText(user.username)">
-      <label for="firstname" class="col-xs-12 col-sm-2 col-form-label">Prenom</label>
+      <label for="firstname" class="col-xs-12 col-sm-2 col-form-label">Prénom</label>
 
       <div class="col-xs-12 col-sm-10">
         <input class="form-control"
                [class.form-control-success]="checkText(user.username)" type="text"
-               placeholder="John" id="firstname" name="firstname" [(ngModel)]="user.username" required>
+               placeholder="John" id="firstname" name="firstname" [(ngModel)]="user.username" #prenom="ngModel"
+               required>
+
+        <div class="alert alert-danger" role="alert" *ngIf="prenom.dirty && prenom.hasError('required')">Le prénom est
+          requis
+        </div>
       </div>
     </div>
     <div class="form-group row" [class.has-success]="checkText(user.lastname)">
       <label for="lastname" class="col-xs-12 col-sm-2 col-form-label">Nom</label>
-      <div class="col-xs-12 col-sm-10">
-        <input class="form-control" [class.form-control-success]="checkText(user.lastname)" type="text" placeholder="Doe" id="lastname" name="lastname"
-               [(ngModel)]="user.lastname" required>
-      </div>
-    </div>
-    <div class="alert alert-danger" role="alert" *ngIf="matricule.dirty && matricule.hasError('required')">Le matricule est requis</div>
-    <div class="form-group row" [class.has-success]="matricule.dirty && checkMatricule()" [class.has-danger]="matricule.dirty && !checkMatricule()">
-       <label for="matricule" class="col-xs-12 col-sm-2 col-form-label">Matricule</label>
 
       <div class="col-xs-12 col-sm-10">
-        <input class="form-control" [class.form-control-success]="matricule.dirty && checkMatricule()" type="text" placeholder="xxxx"
+        <input class="form-control" [class.form-control-success]="checkText(user.lastname)" type="text"
+               placeholder="Doe" id="lastname" name="lastname"
+               [(ngModel)]="user.lastname" #nom="ngModel" required>
+
+        <div class="alert alert-danger" role="alert" *ngIf="nom.dirty && nom.hasError('required')">Le nom est
+          requis
+        </div>
+      </div>
+    </div>
+    <div class="form-group row" [class.has-success]="matricule.dirty && checkMatricule()"
+         [class.has-danger]="matricule.dirty && !checkMatricule()">
+      <label for="matricule" class="col-xs-12 col-sm-2 col-form-label">Matricule</label>
+
+      <div class="col-xs-12 col-sm-10">
+        <input class="form-control" [class.form-control-success]="matricule.dirty && checkMatricule()" type="text"
+               placeholder="xxxx"
                id="matricule" name="matricule"
                [(ngModel)]="user.matricule" #matricule="ngModel" required>
         <small id="passwordHelpInline" class="text-muted">
           0000 pour un nouvel arrivant.
         </small>
+        <div class="alert alert-danger" role="alert" *ngIf="matricule.dirty && matricule.hasError('required')">Le
+          matricule est requis
+        </div>
       </div>
     </div>
     <div class="form-group row">
@@ -47,15 +62,19 @@
     <div class="form-group">
       <div class="row">
         <label for="begin-date" class="col-sm-2 col-form-label">Date de debut</label>
+
         <div class="col-sm-4 mb-3">
-          <input class="form-control" type="date" id="begin-date" name="beginDate" (blur)="updateOffDayNumber()" [ngModel]="conge.beginDate | date:'yyyy-MM-dd'" (ngModelChange)="conge.beginDate = $event" [value]="conge.beginDate | date:'yyyy-MM-dd'" required>
+          <input class="form-control" type="date" id="begin-date" name="beginDate" (blur)="updateOffDayNumber()"
+                 [ngModel]="conge.beginDate | date:'yyyy-MM-dd'" (ngModelChange)="conge.beginDate = $event"
+                 [value]="conge.beginDate | date:'yyyy-MM-dd'" required>
         </div>
 
         <div class="col-sm-3">
           <div class="form-check">
             <label class="form-check-label">
               <input class="form-check-input" type="checkbox" name="isBeginDateMorning"
-                     [(ngModel)]="conge.isBeginDateMorning" (change)="updatePartOffDayNumber($event, conge.isBeginDateMorning)"> Matin
+                     [(ngModel)]="conge.isBeginDateMorning"
+                     (change)="updatePartOffDayNumber($event, conge.isBeginDateMorning)"> Matin
             </label>
           </div>
         </div>
@@ -63,7 +82,8 @@
           <div class="form-check">
             <label class="form-check-label">
               <input class="form-check-input" type="checkbox" name="isBeginDateAfternoon"
-                     [(ngModel)]="conge.isBeginDateAfternoon" (change)="updatePartOffDayNumber($event, conge.isBeginDateAfternoon)"> Aprem
+                     [(ngModel)]="conge.isBeginDateAfternoon"
+                     (change)="updatePartOffDayNumber($event, conge.isBeginDateAfternoon)"> Aprem
             </label>
           </div>
         </div>
@@ -71,21 +91,26 @@
     </div>
     <div class="form-group row">
       <label for="end-date" class="col-sm-2 col-form-label">Date de fin</label>
+
       <div class="col-sm-4 mb-3">
-        <input class="form-control" type="date" id="end-date" name="endDate" (blur)="updateOffDayNumber()" [ngModel]="conge.endDate | date:'yyyy-MM-dd'" (ngModelChange)="conge.endDate = $event" [value]="conge.endDate | date:'yyyy-MM-dd'">
+        <input class="form-control" type="date" id="end-date" name="endDate" (blur)="updateOffDayNumber()"
+               [ngModel]="conge.endDate | date:'yyyy-MM-dd'" (ngModelChange)="conge.endDate = $event"
+               [value]="conge.endDate | date:'yyyy-MM-dd'">
       </div>
       <div class="col-sm-3">
         <div class="form-check">
           <label class="form-check-label">
             <input class="form-check-input" type="checkbox" name="isEndDateMorning"
-                   [(ngModel)]="conge.isEndDateMorning"> Matin
+                   [(ngModel)]="conge.isEndDateMorning"
+                   (change)="updatePartOffDayNumber($event, conge.isEndDateMorning)"> Matin
           </label>
         </div>
       </div>
       <div class="col-sm-3">
         <div class="form-check">
           <label class="form-check-label">
-            <input class="form-check-input" type="checkbox" name="isEndDateBegin" [(ngModel)]="conge.isEndDateBegin">
+            <input class="form-check-input" type="checkbox" name="isEndDateBegin" [(ngModel)]="conge.isEndDateBegin"
+                   (change)="updatePartOffDayNumber($event, conge.isEndDateBegin)">
             Aprem
           </label>
         </div>
@@ -94,13 +119,15 @@
 
     <div class="form-group row">
       <label for="example-date-input" class="col-sm-2 col-form-label">Nombre de jour</label>
+
       <div class="col-sm-10">
         <input class="form-control" type="number" id="example-date-input" name="offDayNumber"
-               [(ngModel)]="conge.offDayNumber">
+               [(ngModel)]="conge.offDayNumber" disabled required>
       </div>
     </div>
     <div class="form-group row">
       <label for="example-date-input" class="col-sm-2 col-form-label">Motif</label>
+
       <div class="col-sm-10">
         <select class="form-control" name="reason" [(ngModel)]="conge.reason" required>
           <option value="CP">Congès payés</option>
@@ -113,6 +140,7 @@
     </div>
     <div class="form-group row">
       <label for="other-precision" class="col-sm-2 col-form-label">Autres précisions</label>
+
       <div class="col-sm-10">
         <textarea class="form-control" type="number" id="other-precision"
                   placeholder="Précisions supplémentaires" name="otherDetails"
@@ -124,7 +152,7 @@
   </fieldset>
   <div class="form-group col-xs-12">
     <div class="mx-auto" style="width: 200px;">
-      <button type="submit" class="btn btn-primary">Soumettre ma demande</button>
+      <button type="submit" [disabled]="congeForm.invalid" class="btn btn-primary">Soumettre ma demande</button>
     </div>
   </div>
 </form>
