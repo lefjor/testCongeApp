@@ -1,7 +1,7 @@
 <form (ngSubmit)="submitConge(congeForm.value)" #congeForm="ngForm">
   <fieldset>
     <legend>Informations personnelles</legend>
-    <div class="form-group row" [class.has-success]="checkText(user.username)">
+    <div class="form-group row required" [class.has-success]="checkText(user.username)">
       <label for="firstname" class="col-xs-12 col-sm-2 col-form-label">Prénom</label>
 
       <div class="col-xs-12 col-sm-10">
@@ -95,14 +95,14 @@
       <div class="col-sm-4 mb-3">
         <input class="form-control" type="date" id="end-date" name="endDate" (blur)="updateOffDayNumber()"
                [ngModel]="conge.endDate | date:'yyyy-MM-dd'" (ngModelChange)="conge.endDate = $event"
-               [value]="conge.endDate | date:'yyyy-MM-dd'">
+               [value]="conge.endDate | date:'yyyy-MM-dd'" [disabled]="!conge.isBeginDateAfternoon">
       </div>
       <div class="col-sm-3">
         <div class="form-check">
           <label class="form-check-label">
             <input class="form-check-input" type="checkbox" name="isEndDateMorning"
                    [(ngModel)]="conge.isEndDateMorning"
-                   (change)="updatePartOffDayNumber($event, conge.isEndDateMorning)"> Matin
+                   (change)="updatePartOffDayNumber($event, conge.isEndDateMorning)" [disabled]="!conge.isBeginDateAfternoon"> Matin
           </label>
         </div>
       </div>
@@ -110,7 +110,7 @@
         <div class="form-check">
           <label class="form-check-label">
             <input class="form-check-input" type="checkbox" name="isEndDateBegin" [(ngModel)]="conge.isEndDateBegin"
-                   (change)="updatePartOffDayNumber($event, conge.isEndDateBegin)">
+                   (change)="updatePartOffDayNumber($event, conge.isEndDateBegin)" [disabled]="!conge.isBeginDateAfternoon">
             Aprem
           </label>
         </div>

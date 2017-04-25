@@ -76,7 +76,7 @@ export class CongeFormulaireComponent implements OnInit {
   ngOnInit() {
     // Dates initialization
     this.conge.beginDate = moment().startOf('day').toDate();
-    this.conge.endDate = moment(new Date()).startOf('day').add(1, 'days').toDate();
+    //this.conge.endDate = moment(new Date()).startOf('day').add(1, 'days').toDate();
     // Bool for off part initialization
     this.conge.isBeginDateMorning = true;
     this.conge.isBeginDateAfternoon = true;
@@ -85,7 +85,7 @@ export class CongeFormulaireComponent implements OnInit {
     // Select init
     this.conge.reason = "CP";
 
-    this.updateOffDayNumber();
+    this.conge.offDayNumber = 1;
     if (this.localStorageService.isSupported) {
       console.log('LocalStorage : Loading data');
       let user = Object.assign(new User(), this.localStorageService.get("personalInfo"));

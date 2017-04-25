@@ -23,3 +23,8 @@ button[type=submit] {
 .ng-invalid:not(form)  {
   border-left: 5px solid #a94442; /* red */
 }
+
+.form-group.required label:after {
+  content:"*";
+  color:red;
+}
