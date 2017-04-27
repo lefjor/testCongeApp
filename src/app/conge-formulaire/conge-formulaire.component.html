@@ -15,7 +15,7 @@
         </div>
       </div>
     </div>
-    <div class="form-group row" [class.has-success]="checkText(user.lastname)">
+    <div class="form-group row required" [class.has-success]="checkText(user.lastname)">
       <label for="lastname" class="col-xs-12 col-sm-2 col-form-label">Nom</label>
 
       <div class="col-xs-12 col-sm-10">
@@ -28,7 +28,7 @@
         </div>
       </div>
     </div>
-    <div class="form-group row" [class.has-success]="matricule.dirty && checkMatricule()"
+    <div class="form-group row required" [class.has-success]="matricule.dirty && checkMatricule()"
          [class.has-danger]="matricule.dirty && !checkMatricule()">
       <label for="matricule" class="col-xs-12 col-sm-2 col-form-label">Matricule</label>
 
@@ -49,7 +49,7 @@
       <div class="col-12">
         <div class="form-check">
           <label class="form-check-label">
-            <input class="form-check-input" type="checkbox" name="isPartielTime" [(ngModel)]="user.isPartialTime"> Temps
+            <input class="form-check-input" type="checkbox" name="isPartialTime" [(ngModel)]="user.isPartialTime"> Temps
             partiel
           </label>
         </div>
@@ -59,22 +59,37 @@
   </fieldset>
   <fieldset>
     <legend>Demande de congès</legend>
-    <div class="form-group">
+
+    <div class="alert alert-danger" role="alert" *ngIf="conge.isError">
+      La demande de congé est en erreur : {{conge.errorMessage}}
+    </div>
+    <div class="form-group required">
       <div class="row">
         <label for="begin-date" class="col-sm-2 col-form-label">Date de debut</label>
 
         <div class="col-sm-4 mb-3">
-          <input class="form-control" type="date" id="begin-date" name="beginDate" (blur)="updateOffDayNumber()"
-                 [ngModel]="conge.beginDate | date:'yyyy-MM-dd'" (ngModelChange)="conge.beginDate = $event"
-                 [value]="conge.beginDate | date:'yyyy-MM-dd'" required>
+          <!--<input class="form-control" type="date" id="begin-date" name="beginDate" (change)="updateOffDayNumber()"-->
+                 <!--[ngModel]="conge.beginDate | date:'yyyy-MM-dd'" (ngModelChange)="conge.beginDate = $event"-->
+                 <!--[value]="conge.beginDate | date:'yyyy-MM-dd'" required>-->
+
+          <div class="input-group">
+            <input class="form-control" id="begin-date" placeholder="dd/mm/yyyy" (ngModelChange)="onSelectBeginDate($event)"
+                   name="beginDate" [ngModel]="modelBeginDate" ngbDatepicker #d1="ngbDatepicker">
+            <div class="input-group-addon" (click)="d1.toggle()" >
+              <img src="../../assets/img/calendar-icon.svg" style="width: 1.2rem; height: 1rem; cursor: pointer;"/>
+            </div>
+          </div>
         </div>
+
+
 
         <div class="col-sm-3">
           <div class="form-check">
             <label class="form-check-label">
               <input class="form-check-input" type="checkbox" name="isBeginDateMorning"
                      [(ngModel)]="conge.isBeginDateMorning"
-                     (change)="updatePartOffDayNumber($event, conge.isBeginDateMorning)"> Matin
+                     (change)="updateOffDayNumber()"
+                     [disabled]="!isValidDate(conge.beginDate)" > Matin
             </label>
           </div>
         </div>
@@ -83,7 +98,8 @@
             <label class="form-check-label">
               <input class="form-check-input" type="checkbox" name="isBeginDateAfternoon"
                      [(ngModel)]="conge.isBeginDateAfternoon"
-                     (change)="updatePartOffDayNumber($event, conge.isBeginDateAfternoon)"> Aprem
+                     (change)="updateOffDayNumber()"
+                     [disabled]="!isValidDate(conge.beginDate)" > Aprem
             </label>
           </div>
         </div>
@@ -93,24 +109,33 @@
       <label for="end-date" class="col-sm-2 col-form-label">Date de fin</label>
 
       <div class="col-sm-4 mb-3">
-        <input class="form-control" type="date" id="end-date" name="endDate" (blur)="updateOffDayNumber()"
-               [ngModel]="conge.endDate | date:'yyyy-MM-dd'" (ngModelChange)="conge.endDate = $event"
-               [value]="conge.endDate | date:'yyyy-MM-dd'" [disabled]="!conge.isBeginDateAfternoon">
+        <!--<input class="form-control" type="date" id="end-date" name="endDate" (change)="updateOffDayNumber()"-->
+               <!--[ngModel]="conge.endDate | date:'yyyy-MM-dd'" (ngModelChange)="conge.endDate = $event"-->
+               <!--[value]="conge.endDate | date:'yyyy-MM-dd'" [disabled]="!conge.isBeginDateAfternoon">-->
+
+        <div class="input-group">
+          <input class="form-control" id="end-date" placeholder="dd/mm/yyyy" (ngModelChange)="onSelectEndDate($event)"
+                 name="endDate" [ngModel]="modelEndDate" ngbDatepicker #d2="ngbDatepicker" [disabled]="!conge.isBeginDateAfternoon">
+          <div class="input-group-addon" (click)="d2.toggle()" [hidden]="!conge.isBeginDateAfternoon">
+            <img src="../../assets/img/calendar-icon.svg" style="width: 1.2rem; height: 1rem; cursor: pointer;"/>
+          </div>
+        </div>
+
       </div>
       <div class="col-sm-3">
         <div class="form-check">
           <label class="form-check-label">
             <input class="form-check-input" type="checkbox" name="isEndDateMorning"
                    [(ngModel)]="conge.isEndDateMorning"
-                   (change)="updatePartOffDayNumber($event, conge.isEndDateMorning)" [disabled]="!conge.isBeginDateAfternoon"> Matin
+                   (change)="updateOffDayNumber()" [disabled]="!conge.isBeginDateAfternoon || !isValidDate(conge.endDate)"> Matin
           </label>
         </div>
       </div>
       <div class="col-sm-3">
         <div class="form-check">
           <label class="form-check-label">
-            <input class="form-check-input" type="checkbox" name="isEndDateBegin" [(ngModel)]="conge.isEndDateBegin"
-                   (change)="updatePartOffDayNumber($event, conge.isEndDateBegin)" [disabled]="!conge.isBeginDateAfternoon">
+            <input class="form-check-input" type="checkbox" name="isEndDateBegin" [(ngModel)]="conge.isEndDateAfternoon"
+                   (change)="updateOffDayNumber()" [disabled]="!conge.isBeginDateAfternoon || !isValidDate(conge.endDate)">
             Aprem
           </label>
         </div>
@@ -125,7 +150,7 @@
                [(ngModel)]="conge.offDayNumber" disabled required>
       </div>
     </div>
-    <div class="form-group row">
+    <div class="form-group row required">
       <label for="example-date-input" class="col-sm-2 col-form-label">Motif</label>
 
       <div class="col-sm-10">
