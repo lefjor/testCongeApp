@@ -1,9 +1,15 @@
 import {Component, OnInit, Injectable} from '@angular/core';
 import {HttpModule} from '@angular/http';
 import {LocalStorageService} from 'angular-2-local-storage';
-import {NgbDatepickerI18n, NgbDatepickerConfig, NgbDateStruct, NgbDateParserFormatter} from '@ng-bootstrap/ng-bootstrap';
-import { NgbDateFRParserFormatter } from "./ngb-date-fr-parser-formatter";
+import {
+  NgbDatepickerI18n,
+  NgbDatepickerConfig,
+  NgbDateStruct,
+  NgbDateParserFormatter
+} from '@ng-bootstrap/ng-bootstrap';
+import {NgbDateFRParserFormatter} from "./ngb-date-fr-parser-formatter";
 import * as moment from 'moment';
+import {PublicHolidayService} from '../public-holiday.service';
 
 const I18N_VALUES = {
   fr: {
@@ -64,12 +70,14 @@ class Conge {
   selector: 'conge-formulaire',
   templateUrl: './conge-formulaire.component.html',
   styleUrls: ['./conge-formulaire.component.scss'],
-  providers: [I18n, {provide: NgbDatepickerI18n, useClass: CustomDatepickerI18n}, NgbDatepickerConfig, {provide: NgbDateParserFormatter, useClass: NgbDateFRParserFormatter}] // define custom NgbDatepickerI18n provider
+  providers: [PublicHolidayService, I18n, {
+    provide: NgbDatepickerI18n,
+    useClass: CustomDatepickerI18n
+  }, NgbDatepickerConfig, {provide: NgbDateParserFormatter, useClass: NgbDateFRParserFormatter}] // define custom NgbDatepickerI18n provider
 })
 export class CongeFormulaireComponent implements OnInit {
   user = new User();
   conge = new Conge();
-  regexDigit = /\d{4}/g;
   modelBeginDate: NgbDateStruct;
   modelEndDate: NgbDateStruct;
 
@@ -81,11 +89,11 @@ export class CongeFormulaireComponent implements OnInit {
   constructor(private http: HttpModule,
               private localStorageService: LocalStorageService,
               private _i18n: I18n,
-              private datepickerConfig: NgbDatepickerConfig) {
-    // weekends are disabled
+              private datepickerConfig: NgbDatepickerConfig, private publicHolidayService: PublicHolidayService) {
+    // weekends and public holidays are disabled
     datepickerConfig.markDisabled = (date: NgbDateStruct) => {
       const d = new Date(date.year, date.month - 1, date.day);
-      return d.getDay() === 0 || d.getDay() === 6;
+      return publicHolidayService.isNotWorkingDay(moment(d));
     };
     datepickerConfig.showWeekNumbers = true;
     datepickerConfig.outsideDays = 'collapsed';
@@ -106,13 +114,13 @@ export class CongeFormulaireComponent implements OnInit {
 
   onSelectBeginDate(date: NgbDateStruct) {
     this.modelBeginDate = date;
-    this.conge.beginDate = new Date(date.year, date.month -1, date.day);
+    this.conge.beginDate = new Date(date.year, date.month - 1, date.day);
     this.updateOffDayNumber();
   }
 
   onSelectEndDate(date: NgbDateStruct) {
     this.modelEndDate = date;
-    this.conge.endDate = new Date(date.year, date.month -1, date.day);
+    this.conge.endDate = new Date(date.year, date.month - 1, date.day);
     this.updateOffDayNumber();
   }
 
@@ -131,7 +139,18 @@ export class CongeFormulaireComponent implements OnInit {
     if (this.isValidDate(this.conge.beginDate) && this.isValidDate(this.conge.endDate) && this.conge.isBeginDateAfternoon) {
       if (mEndDate.isAfter(mBeginDate)) {
         console.log('cas 1');
-        var offDayNumber = moment(this.conge.endDate).diff(moment(this.conge.beginDate), 'days') + 1;
+        var offDayNumber = 0;
+
+        // Weekends calcul and holidays
+
+        var tmpDate = mBeginDate;
+        while (tmpDate.isSameOrBefore(mEndDate)) {
+          if (this.publicHolidayService.isWorkingDay(tmpDate)) {
+            offDayNumber++;
+          }
+          tmpDate.add(1, 'days');
+        }
+
         if (!this.conge.isBeginDateMorning) {
           offDayNumber -= 0.5;
         }
@@ -174,7 +193,7 @@ export class CongeFormulaireComponent implements OnInit {
   }
 
   /**
-   *
+   * Verify the validity of a text
    * @param text
    * @returns {boolean}
    */
@@ -186,13 +205,16 @@ export class CongeFormulaireComponent implements OnInit {
   }
 
   checkMatricule(): boolean {
-    return this.user.matricule !== undefined && this.regexDigit.test(this.user.matricule);
+    const regexDigit = /\d{4}/g;
+    return this.user.matricule !== undefined && regexDigit.test(this.user.matricule);
   }
 
   submitConge(conge) {
     // Save to localStorage
     this.localStorageService.set('personalInfo', this.user);
     console.log(conge);
+    console.log('conge', this.conge);
+    console.log('user', this.user);
   }
 
   ngOnInit() {
@@ -231,8 +253,7 @@ export class CongeFormulaireComponent implements OnInit {
       console.debug('No localStorage service available');
     }
 
-    if(this.user.isPartialTime === undefined) {
-      console.log("isPartialTime init");
+    if (this.user.isPartialTime === undefined) {
       this.user.isPartialTime = false;
     }
   }

@@ -17,14 +17,7 @@ button[type=submit] {
   text-align: center;
 }
 
-.ng-valid[required], .ng-valid.required  {
-  border-left: 5px solid #42A948; /* green */
-}
-.ng-invalid:not(form)  {
-  border-left: 5px solid #a94442; /* red */
-}
-
-.form-group.required label:after {
+.form-group.required label:not(.form-check-label):after {
   content:"*";
   color:red;
 }

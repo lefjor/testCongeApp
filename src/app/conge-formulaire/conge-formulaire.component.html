@@ -28,15 +28,17 @@
         </div>
       </div>
     </div>
-    <div class="form-group row required" [class.has-success]="matricule.dirty && checkMatricule()"
-         [class.has-danger]="matricule.dirty && !checkMatricule()">
+    <div class="form-group row required" [class.has-success]="(matricule.dirty || matricule.untouched || matricule.touched) && checkMatricule()"
+         [class.has-danger]="(matricule.dirty || matricule.untouched || matricule.touched) && !checkMatricule()">
       <label for="matricule" class="col-xs-12 col-sm-2 col-form-label">Matricule</label>
 
       <div class="col-xs-12 col-sm-10">
-        <input class="form-control" [class.form-control-success]="matricule.dirty && checkMatricule()" type="text"
+        <input class="form-control"
+               [class.form-control-success]="(matricule.dirty || matricule.untouched || matricule.touched) && checkMatricule()"
+               [class.form-control-danger]="(matricule.dirty || matricule.untouched || matricule.touched) && !checkMatricule()" type="text"
                placeholder="xxxx"
                id="matricule" name="matricule"
-               [(ngModel)]="user.matricule" #matricule="ngModel" required>
+               [(ngModel)]="user.matricule" #matricule="ngModel" required #test>
         <small id="passwordHelpInline" class="text-muted">
           0000 pour un nouvel arrivant.
         </small>
@@ -55,7 +57,6 @@
         </div>
       </div>
     </div>
-    {{user | json}}
   </fieldset>
   <fieldset>
     <legend>Demande de congès</legend>
@@ -68,10 +69,6 @@
         <label for="begin-date" class="col-sm-2 col-form-label">Date de debut</label>
 
         <div class="col-sm-4 mb-3">
-          <!--<input class="form-control" type="date" id="begin-date" name="beginDate" (change)="updateOffDayNumber()"-->
-                 <!--[ngModel]="conge.beginDate | date:'yyyy-MM-dd'" (ngModelChange)="conge.beginDate = $event"-->
-                 <!--[value]="conge.beginDate | date:'yyyy-MM-dd'" required>-->
-
           <div class="input-group">
             <input class="form-control" id="begin-date" placeholder="dd/mm/yyyy" (ngModelChange)="onSelectBeginDate($event)"
                    name="beginDate" [ngModel]="modelBeginDate" ngbDatepicker #d1="ngbDatepicker">
@@ -80,8 +77,6 @@
             </div>
           </div>
         </div>
-
-
 
         <div class="col-sm-3">
           <div class="form-check">
@@ -109,10 +104,6 @@
       <label for="end-date" class="col-sm-2 col-form-label">Date de fin</label>
 
       <div class="col-sm-4 mb-3">
-        <!--<input class="form-control" type="date" id="end-date" name="endDate" (change)="updateOffDayNumber()"-->
-               <!--[ngModel]="conge.endDate | date:'yyyy-MM-dd'" (ngModelChange)="conge.endDate = $event"-->
-               <!--[value]="conge.endDate | date:'yyyy-MM-dd'" [disabled]="!conge.isBeginDateAfternoon">-->
-
         <div class="input-group">
           <input class="form-control" id="end-date" placeholder="dd/mm/yyyy" (ngModelChange)="onSelectEndDate($event)"
                  name="endDate" [ngModel]="modelEndDate" ngbDatepicker #d2="ngbDatepicker" [disabled]="!conge.isBeginDateAfternoon">
@@ -120,7 +111,6 @@
             <img src="../../assets/img/calendar-icon.svg" style="width: 1.2rem; height: 1rem; cursor: pointer;"/>
           </div>
         </div>
-
       </div>
       <div class="col-sm-3">
         <div class="form-check">
@@ -172,8 +162,6 @@
                   [(ngModel)]="conge.otherDetails"></textarea>
       </div>
     </div>
-    conge : #{{conge.beginDate}}#
-    {{conge | json}}
   </fieldset>
   <div class="form-group col-xs-12">
     <div class="mx-auto" style="width: 200px;">
