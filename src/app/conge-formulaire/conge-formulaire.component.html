@@ -1,13 +1,13 @@
 <form (ngSubmit)="submitConge(congeForm.value)" #congeForm="ngForm">
   <fieldset>
     <legend>Informations personnelles</legend>
-    <div class="form-group row required" [class.has-success]="checkText(user.username)">
+    <div class="form-group row required" [class.has-success]="checkText(user.firstname)">
       <label for="firstname" class="col-xs-12 col-sm-2 col-form-label">Prénom</label>
 
       <div class="col-xs-12 col-sm-10">
         <input class="form-control"
-               [class.form-control-success]="checkText(user.username)" type="text"
-               placeholder="John" id="firstname" name="firstname" [(ngModel)]="user.username" #prenom="ngModel"
+               [class.form-control-success]="checkText(user.firstname)" type="text"
+               placeholder="John" id="firstname" name="firstname" [(ngModel)]="user.firstname" #prenom="ngModel"
                required>
 
         <div class="alert alert-danger" role="alert" *ngIf="prenom.dirty && prenom.hasError('required')">Le prénom est
@@ -83,7 +83,7 @@
             <label class="form-check-label">
               <input class="form-check-input" type="checkbox" name="isBeginDateMorning"
                      [(ngModel)]="conge.isBeginDateMorning"
-                     (change)="updateOffDayNumber()"
+                     (change)="validateConge()"
                      [disabled]="!isValidDate(conge.beginDate)" > Matin
             </label>
           </div>
@@ -93,7 +93,7 @@
             <label class="form-check-label">
               <input class="form-check-input" type="checkbox" name="isBeginDateAfternoon"
                      [(ngModel)]="conge.isBeginDateAfternoon"
-                     (change)="updateOffDayNumber()"
+                     (change)="validateConge()"
                      [disabled]="!isValidDate(conge.beginDate)" > Aprem
             </label>
           </div>
@@ -117,7 +117,7 @@
           <label class="form-check-label">
             <input class="form-check-input" type="checkbox" name="isEndDateMorning"
                    [(ngModel)]="conge.isEndDateMorning"
-                   (change)="updateOffDayNumber()" [disabled]="!conge.isBeginDateAfternoon || !isValidDate(conge.endDate)"> Matin
+                   (change)="validateConge()" [disabled]="!conge.isBeginDateAfternoon || !isValidDate(conge.endDate)"> Matin
           </label>
         </div>
       </div>
@@ -125,7 +125,7 @@
         <div class="form-check">
           <label class="form-check-label">
             <input class="form-check-input" type="checkbox" name="isEndDateBegin" [(ngModel)]="conge.isEndDateAfternoon"
-                   (change)="updateOffDayNumber()" [disabled]="!conge.isBeginDateAfternoon || !isValidDate(conge.endDate)">
+                   (change)="validateConge()" [disabled]="!conge.isBeginDateAfternoon || !isValidDate(conge.endDate)">
             Aprem
           </label>
         </div>

@@ -109,7 +109,6 @@ export class PublicHolidayService {
     for (let key in this.listeFerie) {
       if (this.listeFerie.hasOwnProperty(key)) {
         if (date.isSame(this.listeFerie[key])) {
-          console.log(key);
           return key;
         }
       }

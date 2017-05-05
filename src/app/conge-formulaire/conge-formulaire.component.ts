@@ -21,7 +21,7 @@ const I18N_VALUES = {
 // Define a service holding the language. You probably already have one if your app is i18ned.
 @Injectable()
 export class I18n {
-  language = 'en';
+  language = 'fr';
 }
 
 // Define custom service providing the months and weekdays translations
@@ -46,7 +46,7 @@ export class CustomDatepickerI18n extends NgbDatepickerI18n {
 }
 
 class User {
-  username: string;
+  firstname: string;
   lastname: string;
   matricule: string;
   isPartialTime?: boolean;
@@ -70,10 +70,9 @@ class Conge {
   selector: 'conge-formulaire',
   templateUrl: './conge-formulaire.component.html',
   styleUrls: ['./conge-formulaire.component.scss'],
-  providers: [PublicHolidayService, I18n, {
-    provide: NgbDatepickerI18n,
-    useClass: CustomDatepickerI18n
-  }, NgbDatepickerConfig, {provide: NgbDateParserFormatter, useClass: NgbDateFRParserFormatter}] // define custom NgbDatepickerI18n provider
+  providers: [PublicHolidayService, I18n,
+    {provide: NgbDatepickerI18n, useClass: CustomDatepickerI18n},
+    NgbDatepickerConfig, {provide: NgbDateParserFormatter, useClass: NgbDateFRParserFormatter}] // define custom NgbDatepickerI18n provider
 })
 export class CongeFormulaireComponent implements OnInit {
   user = new User();
@@ -82,14 +81,18 @@ export class CongeFormulaireComponent implements OnInit {
   modelEndDate: NgbDateStruct;
 
   /**
-   *
+   * Constructor
    * @param http
    * @param localStorageService
+   * @param _i18n
+   * @param datepickerConfig
+   * @param publicHolidayService
    */
   constructor(private http: HttpModule,
               private localStorageService: LocalStorageService,
               private _i18n: I18n,
-              private datepickerConfig: NgbDatepickerConfig, private publicHolidayService: PublicHolidayService) {
+              private datepickerConfig: NgbDatepickerConfig,
+              private publicHolidayService: PublicHolidayService) {
     // weekends and public holidays are disabled
     datepickerConfig.markDisabled = (date: NgbDateStruct) => {
       const d = new Date(date.year, date.month - 1, date.day);
@@ -112,19 +115,19 @@ export class CongeFormulaireComponent implements OnInit {
     return date && moment(date).isValid();
   }
 
-  onSelectBeginDate(date: NgbDateStruct) {
+  onSelectBeginDate(date: NgbDateStruct): void {
     this.modelBeginDate = date;
     this.conge.beginDate = new Date(date.year, date.month - 1, date.day);
-    this.updateOffDayNumber();
+    this.validateConge();
   }
 
-  onSelectEndDate(date: NgbDateStruct) {
+  onSelectEndDate(date: NgbDateStruct): void {
     this.modelEndDate = date;
     this.conge.endDate = new Date(date.year, date.month - 1, date.day);
-    this.updateOffDayNumber();
+    this.validateConge();
   }
 
-  updateOffDayNumber() {
+  validateConge() : boolean {
 
     let mBeginDate = moment(this.conge.beginDate);
     let mEndDate = moment(this.conge.endDate);
@@ -181,6 +184,10 @@ export class CongeFormulaireComponent implements OnInit {
         offDayNumber -= 0.5;
       }
       this.conge.offDayNumber = offDayNumber;
+      if(offDayNumber === 0) {
+        this.conge.isError = true;
+        this.conge.errorMessage = "Matin ou après-midi il faudrait savoir ?";
+      }
     } else if (this.conge.beginDate === undefined) {
       console.log('cas 4');
       this.conge.isError = true;
@@ -190,6 +197,7 @@ export class CongeFormulaireComponent implements OnInit {
       this.conge.isError = true;
       this.conge.errorMessage = "Tu veux le poser ton congé ?";
     }
+    return this.conge.isError;
   }
 
   /**
@@ -204,17 +212,34 @@ export class CongeFormulaireComponent implements OnInit {
     return false;
   }
 
-  checkMatricule(): boolean {
+  /**
+   * Verify the validity of the matricule
+   * @param matricule
+   * @returns {boolean}
+   */
+  checkMatricule(matricule = this.user.matricule): boolean {
     const regexDigit = /\d{4}/g;
-    return this.user.matricule !== undefined && regexDigit.test(this.user.matricule);
+    return matricule !== undefined && regexDigit.test(matricule);
+  }
+
+  /**
+   * Validate a complete user
+   * @param user
+   * @returns {boolean}
+   */
+  validateUser(user: User): boolean {
+    return this.checkText(user.firstname) && this.checkText(user.lastname) && this.checkMatricule(user.matricule);
   }
 
   submitConge(conge) {
-    // Save to localStorage
-    this.localStorageService.set('personalInfo', this.user);
-    console.log(conge);
-    console.log('conge', this.conge);
-    console.log('user', this.user);
+
+    if (this.validateUser(this.user) && this.validateConge()) {
+      // Save to localStorage
+      this.localStorageService.set('personalInfo', this.user);
+      console.log('conge', this.conge);
+      console.log('user', this.user);
+      // http call to nodejs server
+    }
   }
 
   ngOnInit() {
@@ -235,7 +260,7 @@ export class CongeFormulaireComponent implements OnInit {
     // Select init
     this.conge.reason = 'CP';
 
-    this.updateOffDayNumber();
+    this.validateConge();
 
     /*
      USER INIT
