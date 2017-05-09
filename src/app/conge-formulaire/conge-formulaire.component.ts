@@ -1,6 +1,7 @@
 import {Component, OnInit, Injectable} from '@angular/core';
-import {HttpModule} from '@angular/http';
+import {Http, Headers} from '@angular/http';
 import {LocalStorageService} from 'angular-2-local-storage';
+import 'rxjs/add/operator/toPromise';
 import {
   NgbDatepickerI18n,
   NgbDatepickerConfig,
@@ -28,42 +29,49 @@ export class I18n {
 @Injectable()
 export class CustomDatepickerI18n extends NgbDatepickerI18n {
 
-  constructor(private _i18n: I18n) {
+  constructor(private _i18n:I18n) {
     super();
   }
 
-  getWeekdayShortName(weekday: number): string {
+  getWeekdayShortName(weekday:number):string {
     return I18N_VALUES[this._i18n.language].weekdays[weekday - 1];
   }
 
-  getMonthShortName(month: number): string {
+  getMonthShortName(month:number):string {
     return I18N_VALUES[this._i18n.language].months[month - 1];
   }
 
-  getMonthFullName(month: number): string {
+  getMonthFullName(month:number):string {
     return this.getMonthShortName(month);
   }
 }
 
+class UserConge {
+  user:User;
+  conge:Conge;
+}
+
 class User {
-  firstname: string;
-  lastname: string;
-  matricule: string;
-  isPartialTime?: boolean;
+  firstname:string;
+  lastname:string;
+  matricule:string;
+  isPartialTime
+?:
+  boolean;
 }
 
 class Conge {
-  beginDate: Date;
-  isBeginDateMorning: boolean;
-  isBeginDateAfternoon: boolean;
-  endDate: Date;
-  isEndDateMorning: boolean;
-  isEndDateAfternoon: boolean;
-  reason: string;
-  offDayNumber: number;
-  otherDetails: string;
-  isError: boolean;
-  errorMessage: string;
+  beginDate:Date;
+  isBeginDateMorning:boolean;
+  isBeginDateAfternoon:boolean;
+  endDate:Date;
+  isEndDateMorning:boolean;
+  isEndDateAfternoon:boolean;
+  reason:string;
+  offDayNumber:number;
+  otherDetails:string;
+  isError:boolean;
+  errorMessage:string;
 }
 
 @Component({
@@ -77,8 +85,8 @@ class Conge {
 export class CongeFormulaireComponent implements OnInit {
   user = new User();
   conge = new Conge();
-  modelBeginDate: NgbDateStruct;
-  modelEndDate: NgbDateStruct;
+  modelBeginDate:NgbDateStruct;
+  modelEndDate:NgbDateStruct;
 
   /**
    * Constructor
@@ -88,13 +96,13 @@ export class CongeFormulaireComponent implements OnInit {
    * @param datepickerConfig
    * @param publicHolidayService
    */
-  constructor(private http: HttpModule,
-              private localStorageService: LocalStorageService,
-              private _i18n: I18n,
-              private datepickerConfig: NgbDatepickerConfig,
-              private publicHolidayService: PublicHolidayService) {
+  constructor(private http:Http,
+              private localStorageService:LocalStorageService,
+              private _i18n:I18n,
+              private datepickerConfig:NgbDatepickerConfig,
+              private publicHolidayService:PublicHolidayService) {
     // weekends and public holidays are disabled
-    datepickerConfig.markDisabled = (date: NgbDateStruct) => {
+    datepickerConfig.markDisabled = (date:NgbDateStruct) => {
       const d = new Date(date.year, date.month - 1, date.day);
       return publicHolidayService.isNotWorkingDay(moment(d));
     };
@@ -111,23 +119,23 @@ export class CongeFormulaireComponent implements OnInit {
    * @param date
    * @returns {Date|boolean}
    */
-  isValidDate(date: Date): boolean {
+  isValidDate(date:Date):boolean {
     return date && moment(date).isValid();
   }
 
-  onSelectBeginDate(date: NgbDateStruct): void {
+  onSelectBeginDate(date:NgbDateStruct):void {
     this.modelBeginDate = date;
     this.conge.beginDate = new Date(date.year, date.month - 1, date.day);
     this.validateConge();
   }
 
-  onSelectEndDate(date: NgbDateStruct): void {
+  onSelectEndDate(date:NgbDateStruct):void {
     this.modelEndDate = date;
     this.conge.endDate = new Date(date.year, date.month - 1, date.day);
     this.validateConge();
   }
 
-  validateConge() : boolean {
+  validateConge():boolean {
 
     let mBeginDate = moment(this.conge.beginDate);
     let mEndDate = moment(this.conge.endDate);
@@ -184,7 +192,7 @@ export class CongeFormulaireComponent implements OnInit {
         offDayNumber -= 0.5;
       }
       this.conge.offDayNumber = offDayNumber;
-      if(offDayNumber === 0) {
+      if (offDayNumber === 0) {
         this.conge.isError = true;
         this.conge.errorMessage = "Matin ou après-midi il faudrait savoir ?";
       }
@@ -205,7 +213,7 @@ export class CongeFormulaireComponent implements OnInit {
    * @param text
    * @returns {boolean}
    */
-  checkText(text: string): boolean {
+  checkText(text:string):boolean {
     if (text !== undefined && text.length > 0) {
       return true;
     }
@@ -217,7 +225,7 @@ export class CongeFormulaireComponent implements OnInit {
    * @param matricule
    * @returns {boolean}
    */
-  checkMatricule(matricule = this.user.matricule): boolean {
+  checkMatricule(matricule = this.user.matricule):boolean {
     const regexDigit = /\d{4}/g;
     return matricule !== undefined && regexDigit.test(matricule);
   }
@@ -227,19 +235,38 @@ export class CongeFormulaireComponent implements OnInit {
    * @param user
    * @returns {boolean}
    */
-  validateUser(user: User): boolean {
+  validateUser(user:User):boolean {
     return this.checkText(user.firstname) && this.checkText(user.lastname) && this.checkMatricule(user.matricule);
   }
 
+  private headers = new Headers({'Content-Type': 'application/json'});
+
   submitConge(conge) {
 
-    if (this.validateUser(this.user) && this.validateConge()) {
+    if (this.validateUser(this.user) && !this.validateConge()) {
       // Save to localStorage
       this.localStorageService.set('personalInfo', this.user);
       console.log('conge', this.conge);
       console.log('user', this.user);
       // http call to nodejs server
+      let userConge = new UserConge();
+      userConge.conge = this.conge;
+      userConge.user = this.user;
+
+      this.http
+        .put("http://localhost:3000/text", JSON.stringify(userConge), {headers: this.headers})
+        .toPromise()
+        .then(response => response.json().data)
+        .catch(this.handleError);
+
+    } else {
+      console.log('non valide');
     }
+  }
+
+  private handleError(error: any): Promise<any> {
+    console.error('An error occurred', error); // for demo purposes only
+    return Promise.reject(error.message || error);
   }
 
   ngOnInit() {
